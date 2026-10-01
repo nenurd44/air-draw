@@ -1,4 +1,17 @@
 # Logs
+.tools/
+.venv/
+__pycache__/
+ml/data/
+ml/runs/
+web/tests/fixtures.json
+test-results/
+playwright-report/
+web/public/mediapipe/
+web/public/ort/
+web/public/tracker.js
+# Browser model and tracker assets in web/public are intentionally tracked.
+
 logs
 *.log
 npm-debug.log*

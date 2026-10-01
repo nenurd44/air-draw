@@ -1,0 +1,218 @@
+{
+  "categories": [
+    "circle",
+    "triangle",
+    "star",
+    "house",
+    "tree",
+    "fish",
+    "bicycle",
+    "umbrella",
+    "cup",
+    "airplane"
+  ],
+  "seed": 42,
+  "epochs": 10,
+  "parameters": 43162,
+  "seconds": 410.8,
+  "source_drawings_per_category": 2000,
+  "source_split_counts": {
+    "train": 16000,
+    "val": 2000,
+    "test": 2000
+  },
+  "train_examples_including_partials": 32000,
+  "validation_accuracy": 0.957,
+  "test_accuracy": 0.96,
+  "test_partial_65pct_accuracy": 0.8995,
+  "confusion_matrix_rows_true_columns_predicted": [
+    [
+      193,
+      0,
+      0,
+      0,
+      1,
+      3,
+      2,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      193,
+      3,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      193,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2
+    ],
+    [
+      0,
+      1,
+      0,
+      196,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      3,
+      0,
+      194,
+      0,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      188,
+      2,
+      0,
+      1,
+      8
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      3,
+      194,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      7,
+      0,
+      0,
+      188,
+      1,
+      2
+    ],
+    [
+      0,
+      0,
+      1,
+      3,
+      0,
+      3,
+      2,
+      1,
+      189,
+      1
+    ],
+    [
+      0,
+      0,
+      6,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      192
+    ]
+  ],
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.9192845728993416,
+      "val_accuracy": 0.902
+    },
+    {
+      "epoch": 2,
+      "loss": 0.47938116899132727,
+      "val_accuracy": 0.9265
+    },
+    {
+      "epoch": 3,
+      "loss": 0.3858641375005245,
+      "val_accuracy": 0.9405
+    },
+    {
+      "epoch": 4,
+      "loss": 0.3321938909590244,
+      "val_accuracy": 0.941
+    },
+    {
+      "epoch": 5,
+      "loss": 0.3049208949804306,
+      "val_accuracy": 0.943
+    },
+    {
+      "epoch": 6,
+      "loss": 0.2745885518118739,
+      "val_accuracy": 0.9505
+    },
+    {
+      "epoch": 7,
+      "loss": 0.25865972638130186,
+      "val_accuracy": 0.9545
+    },
+    {
+      "epoch": 8,
+      "loss": 0.238701717749238,
+      "val_accuracy": 0.949
+    },
+    {
+      "epoch": 9,
+      "loss": 0.2238332209289074,
+      "val_accuracy": 0.952
+    },
+    {
+      "epoch": 10,
+      "loss": 0.2099817164838314,
+      "val_accuracy": 0.957
+    }
+  ],
+  "onnx_max_absolute_error": 3.814697265625e-06,
+  "model_bytes": 174847,
+  "model_sha256": "8bbc9784d8671a3fe914d0a17edfef0ca849897d657eb957afd316e0887aaa60",
+  "source_sha256": {
+    "circle": "f655a73d5dc7143572b83eb9c8492f18c103b449018e1f66bd503f34def0db10",
+    "triangle": "d1492945843cbbda63505e219e8ceeb5ef7023bb7e5d15dac2629cbd0c77986c",
+    "star": "2233c38a14a7e2b86c730834aec7d6bd4530eb51298cf389755449f5e7621336",
+    "house": "d90314da5ad50c41a52669b848591919751049f4ec35cfa7560034a284ed16b8",
+    "tree": "c96a19dbdb1a9011ccfe661b7241a2a039e69c9e6adce361b27c87eaf49d48c8",
+    "fish": "6f865c6eafd3b222698c71a3b80828dde71be55580d9eed4adc3de6b4ece77c9",
+    "bicycle": "fc84e94607ca1589e2bac96e865b2da7b84708aa928be8cb57c97a44f33fc349",
+    "umbrella": "63929c2757193fa66ec11b7bf9748624b38de1f42b1c538b6c4e08e1a542fc64",
+    "cup": "3f4b355ff00465baf7863ebee924e334a9160f4bfb86c01a1ca3069e48f77ef7",
+    "airplane": "4230d7560835931cf3c006cc6a576ba866bd502e5eaf9578d7c10255c60fb357"
+  },
+  "sampling": "first N recognized unique source IDs; bounded convenience sample"
+}

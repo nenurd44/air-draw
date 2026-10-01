@@ -1,0 +1,24 @@
+{
+  "categories": [
+    "circle",
+    "triangle",
+    "star",
+    "house",
+    "tree",
+    "fish",
+    "bicycle",
+    "umbrella",
+    "cup",
+    "airplane"
+  ],
+  "input": [
+    1,
+    1,
+    32,
+    32
+  ],
+  "preprocessing": "vector-distance-v1",
+  "test_accuracy": 0.96,
+  "license": "CC BY 4.0 (Quick, Draw! derived model)",
+  "sha256": "8bbc9784d8671a3fe914d0a17edfef0ca849897d657eb957afd316e0887aaa60"
+}
