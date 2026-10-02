@@ -4,7 +4,8 @@ Checkpoint status and exact continuation commands are in [CHECKPOINTS.md](CHECKP
 Checkpoint 5 browser recognition checks pass in Chromium: real mouse predictions,
 controlled air landmark input through the real classifier, camera worker startup
 and cleanup, and stale-result rejection. Physical-hand accuracy remains a manual
-check. The complete game loop is preserved for checkpoint 6 verification.
+check. Checkpoint 6 game-loop checks also pass: real-model wins, timed losses,
+restart/reset, confidence stability, stale replies and inference failures.
 
 A browser drawing game with mouse/touch input, webcam fingertip drawing, and a real ten-class CNN running locally. No backend, API key, or cloud inference. Inspired by Google's Quick, Draw!, not affiliated with Google.
 
@@ -27,6 +28,8 @@ Open **http://127.0.0.1:5173**. On another machine, install [Node.js LTS](https:
 
 1. Click **Start drawing** on the welcome screen. The board opens with a random drawing prompt and a 30-second timer. Choose **Just practice** for untimed sketching instead.
 2. Optionally click **Enable camera**, allow access, and hold one hand inside the preview. The preview and drawing movement are mirrored.
+   Camera controls sit beside the board on desktop and in a compact panel above
+   it on mobile; the mobile panel stays visible as you scroll to draw.
 3. Your index fingertip is the cursor. Bring thumb and index together to draw; separate them to lift the pen. Move to a new position with the pen up.
 4. Use **Undo** for the last stroke, **Clear** for a fresh canvas, and **Restart round** for a new prompt.
    **Back to start** returns to the welcome screen, clears the round, and turns off the camera.

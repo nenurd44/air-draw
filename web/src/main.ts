@@ -120,6 +120,7 @@ $('start').onclick = startRound
 $('begin').onclick = startRound
 function modelError(message: string) {
   modelReady = false; inferenceBusy = false
+  inference.terminate()
   if (playing) { playing = false; finished = false; $('result').hidden = false; $('result').textContent = 'Round stopped because recognition is unavailable. Reload to retry; you can still sketch.' }
   $('model-status').textContent = `Recognition unavailable. Reload to retry. ${message}`
   $('start').textContent = 'Model unavailable'; $<HTMLButtonElement>('start').disabled = true
@@ -136,6 +137,7 @@ inference.onmessage = event => {
     $('welcome-status').textContent = 'Ready when you are. No camera required.'
   } else if (msg.type === 'error') modelError(msg.message)
   else if (msg.type === 'prediction') {
+    if (!modelReady) return
     inferenceBusy = false
     if (msg.round !== round || msg.revision !== drawing.revision || !drawing.hasInk || finished) return
     const predictions = (msg.probabilities as number[]).map((probability, index) => ({ label: CATEGORIES[index], probability })).sort((a,b) => b.probability - a.probability).slice(0,3)

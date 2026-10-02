@@ -1,9 +1,7 @@
 # Checkpoint progress
 
-Work is limited to the requested scope. Checkpoint 5 is complete; the user then
-requested a clearer Start → drawing-prompt UI. That focused portion of checkpoint
-6 is implemented and verified. Stop after this UI change; broader game-loop
-completion remains pending. On 2026-10-02 the
+Checkpoint 6 is complete, including the requested camera placement improvement.
+Stop here; do not start checkpoint 7 until requested. On 2026-10-02 the
 user authorized pushing the existing state, then proceeding to checkpoint 5.
 Commit `ab8c66c` was previously pushed to `origin/main`. The user subsequently
 authorized pushing checkpoint 5 (`8f181c5`) and the UI follow-up (`91c556c`),
@@ -16,7 +14,7 @@ together with this progress-note update. Deployment remains out of scope.
 | 3 | Webcam air drawing with pinch control | Existing implementation preserved; pinch hysteresis and reset checks pass. Physical-camera behavior still needs a human smoke test. |
 | 4 | Dataset preparation, model training, and evaluation | Complete and verified. Full test accuracy 96.00%; partial test accuracy 89.95%. |
 | 5 | Real browser recognition for mouse and air drawings | Complete: eight Chromium recognition tests pass with real ONNX inference. Air-path tests use controlled landmarks; physical-hand accuracy remains a manual check. |
-| 6 | Complete game loop | Start-screen UI change complete; start, practice, timeout/restart and return-home checks pass. Full success/stale-round verification remains pending. |
+| 6 | Complete game loop | Complete: real-model win, confidence/freshness, deadline, next round, stale-round rejection, failure fallback and camera placement verified. |
 | 7 | Verification, documentation, and deployment preparation | Draft docs and tests preserved. Full verification deferred. |
 
 ## Scope and preserved work
@@ -62,11 +60,12 @@ and 30-second timer, or **Just practice** for untimed drawing. Drag on the canva
 try Undo and Clear. **Back to start** clears the round and stops the camera. Enable
 camera, grant permission, and pinch thumb to index to draw; separate them to
 lift the pen. Stop the server with Ctrl+C. Recognition has passed checkpoint 5
-browser checks; timed gameplay remains preserved for checkpoint 6 verification.
+browser checks; timed gameplay has now passed checkpoint 6. The camera sits beside
+the board on desktop and in a compact sticky panel above the board on mobile.
 
 ## Exact resume instructions
 
-After the user explicitly requests checkpoint 6:
+After the user explicitly requests checkpoint 7:
 
 1. Read this file and `docs/design.md`; inspect `git status --short` and preserve
    any new changes. Do not restart the project or retrain the verified model.
@@ -74,14 +73,42 @@ After the user explicitly requests checkpoint 6:
    on this machine), then run `npm.cmd --prefix web run build`.
 3. Stop the local preview below before Playwright starts its own server on 4173.
    Chromium is now installed. Run `npm.cmd --prefix web run test:browser`.
-4. Finish only the complete game loop: prompt selection, 30-second deadline,
-   stable correct recognition, win/timeout results, restart, and state resets.
-   Add meaningful missing success, stale-round and restart coverage. Existing
-   timer test in `web/tests/game.spec.ts` now passes, as do the new start-screen
-   tests. Broader success/stale-round coverage is still outstanding.
+4. Finish verification, documentation and deployment preparation. Review the
+   README, design/evaluation/deployment notes against actual behavior, verify
+   fresh-checkout reproduction and production asset paths, and record remaining
+   physical-camera and browser coverage limitations. Do not silently treat the
+   controlled landmark tests as a physical-hand recognition test.
 5. Run the relevant unit and browser checks, update this file, commit project-only
-   changes locally, and stop before checkpoint 7. Do not deploy or push additional
-   work unless requested.
+   changes locally, and stop. Do not deploy or push additional work unless requested.
+
+## Checkpoint 6 verification
+
+Camera controls now precede guesses beside the board on desktop. At widths up
+to 700px they become a compact sticky panel above the canvas, keeping the preview
+and toggle accessible while drawing. The mobile layout was checked visually in
+[the camera screenshot](docs/camera-mobile.png); its green camera image is
+Chromium's synthetic video feed, not a real user's camera.
+
+Six browser tests in `web/tests/rounds.spec.ts` cover:
+
+- A real ONNX circle prediction wins only after sustained agreement; ink freezes
+  after completion and Next round clears the board/results and changes the prompt.
+- Delayed replies from a previous round cannot update a new round or home screen.
+- Controlled scores verify the 65% threshold, wrong-guess reset, stale-gap reset,
+  and 800ms sustained agreement. The classifier still runs, but these timing-rule
+  cases intentionally control response delivery and scores.
+- The 30-second deadline wins over a late correct reply; restart resets the timer.
+- An inference failure stops the round but leaves sketching available. The worker
+  is now terminated on failure and later predictions are ignored, so a late reply
+  cannot replace the error with an apparently successful guess.
+- Desktop placement, mobile panel height/width, camera startup and sticky behavior.
+
+Production build passed. All 17 browser tests passed (1.3 minutes), and all five
+unit tests passed. The inference-failure regression was then tightened to deliver
+a reply matching the final ink and passed again (13.1s). Existing screenshots were
+refreshed. No training or dependency changes were needed. Physical-hand accuracy
+and testing beyond Chromium remain limitations for checkpoint 7; there are no
+known blocking checkpoint-6 issues.
 
 ## Requested UI follow-up
 
@@ -105,9 +132,9 @@ Screenshots: [start desktop](docs/start-desktop.png),
 Mobile start and board layouts were visually inspected. Existing desktop/mobile
 recognition screenshots were refreshed for the new practice view.
 
-This completes the requested UI change, not all checkpoint-6 verification.
-Physical-hand testing and broader game-loop success/stale-round scenarios remain
-as noted above. No model retraining, dependency changes, push or deployment.
+This earlier UI change was followed by the completed checkpoint-6 verification
+above. Physical-hand testing remains a manual check. No model retraining or
+dependency changes were needed.
 
 ## Checkpoint 5 verification (2026-10-02)
 
@@ -179,8 +206,8 @@ Completed checks:
 See [evaluation](docs/evaluation.md) for per-category results and limitations.
 The legacy ONNX exporter emitted a deprecation warning, but export and parity
 checks passed. No blocking checkpoint-4 issues remain. Browser recognition has
-since passed the checkpoint-5 checks above; physical-camera smoke testing and
-end-to-end gameplay remain unverified.
+since passed the checkpoint-5 checks above, and end-to-end gameplay passed
+checkpoint 6. Physical-camera smoke testing remains unverified.
 
 ## Processes and commits
 
@@ -188,16 +215,14 @@ Preparation, training, verification, installation and test processes have exited
 The earlier preview (session 71254) was stopped before browser testing. A local
 preview was restarted after tests at http://127.0.0.1:4173 using
 `npm.cmd --prefix web run preview -- --host 127.0.0.1 --port 4173 --strictPort`
-The checkpoint-5 preview (session 96746) was stopped for UI testing. The preview
-was restarted after the UI build; its current tool session is `72295`.
+The previous preview (session 72295) was stopped for checkpoint-6 testing. The
+preview was restarted after the completed checks; its current tool session is `62401`.
 Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
 process. This local preview is the only intentionally running project process.
-No deployment was performed. The current push includes checkpoint 5 (`8f181c5`),
-the UI follow-up (`91c556c`), and these updated progress notes. No checkpoint work
-was advanced during this push. Verify remote synchronization with
-`git rev-list --left-right --count origin/main...HEAD` (expected `0 0`).
+No deployment was performed. GitHub remains at `9b554d3` (checkpoint 5 and the
+start-screen UI). Checkpoint 6 is saved locally and has not been pushed.
 
-Local UI commit message: `Add a guided start screen before the drawing board`.
+Local checkpoint commit message: `Complete checkpoint 6 and improve camera placement`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
 embedded in the file it commits).
