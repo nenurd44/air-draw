@@ -5,8 +5,9 @@ requested a clearer Start → drawing-prompt UI. That focused portion of checkpo
 6 is implemented and verified. Stop after this UI change; broader game-loop
 completion remains pending. On 2026-10-02 the
 user authorized pushing the existing state, then proceeding to checkpoint 5.
-Commit `ab8c66c` was pushed to `origin/main`. Checkpoint 5 changes are saved in a
-new local commit; further pushes and deployment are not part of this checkpoint.
+Commit `ab8c66c` was previously pushed to `origin/main`. The user subsequently
+authorized pushing checkpoint 5 (`8f181c5`) and the UI follow-up (`91c556c`),
+together with this progress-note update. Deployment remains out of scope.
 
 | # | Checkpoint | Status |
 |---|---|---|
@@ -192,8 +193,10 @@ was restarted after the UI build; its current tool session is `72295`.
 Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
 process. This local preview is the only intentionally running project process.
-No deployment was performed. Only the pre-checkpoint-5 commit `ab8c66c` was pushed,
-as requested; checkpoint 5 (`8f181c5`) and the UI follow-up commits remain local.
+No deployment was performed. The current push includes checkpoint 5 (`8f181c5`),
+the UI follow-up (`91c556c`), and these updated progress notes. No checkpoint work
+was advanced during this push. Verify remote synchronization with
+`git rev-list --left-right --count origin/main...HEAD` (expected `0 0`).
 
 Local UI commit message: `Add a guided start screen before the drawing board`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
