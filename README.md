@@ -25,10 +25,11 @@ npm.cmd run dev -- --host 127.0.0.1
 
 Open **http://127.0.0.1:5173**. On another machine, install [Node.js LTS](https://nodejs.org/en/download) and omit the portable PATH line. `npm.cmd` avoids PowerShell's `npm.ps1` execution-policy restriction; changing the system execution policy is unnecessary.
 
-1. Sketch with the mouse or touch while the model loads. Click **Start a round** for a random category and 30-second timer.
+1. Click **Start drawing** on the welcome screen. The board opens with a random drawing prompt and a 30-second timer. Choose **Just practice** for untimed sketching instead.
 2. Optionally click **Enable camera**, allow access, and hold one hand inside the preview. The preview and drawing movement are mirrored.
 3. Your index fingertip is the cursor. Bring thumb and index together to draw; separate them to lift the pen. Move to a new position with the pen up.
 4. Use **Undo** for the last stroke, **Clear** for a fresh canvas, and **Restart round** for a new prompt.
+   **Back to start** returns to the welcome screen, clears the round, and turns off the camera.
 5. A top prediction above 65% must remain correct for at least 800 ms across fresh observations to win. The model never receives the requested category.
 
 Categories: circle, triangle, star, house, tree, fish, bicycle, umbrella, cup, airplane. The model only knows these categories; percentages are relative model scores, not calibrated certainty.

@@ -1,7 +1,9 @@
 # Checkpoint progress
 
-Work is limited to the nearest incomplete checkpoint. Checkpoint 5 is complete;
-stop here and do not begin checkpoint 6 until the user asks. On 2026-10-02 the
+Work is limited to the requested scope. Checkpoint 5 is complete; the user then
+requested a clearer Start → drawing-prompt UI. That focused portion of checkpoint
+6 is implemented and verified. Stop after this UI change; broader game-loop
+completion remains pending. On 2026-10-02 the
 user authorized pushing the existing state, then proceeding to checkpoint 5.
 Commit `ab8c66c` was pushed to `origin/main`. Checkpoint 5 changes are saved in a
 new local commit; further pushes and deployment are not part of this checkpoint.
@@ -13,7 +15,7 @@ new local commit; further pushes and deployment are not part of this checkpoint.
 | 3 | Webcam air drawing with pinch control | Existing implementation preserved; pinch hysteresis and reset checks pass. Physical-camera behavior still needs a human smoke test. |
 | 4 | Dataset preparation, model training, and evaluation | Complete and verified. Full test accuracy 96.00%; partial test accuracy 89.95%. |
 | 5 | Real browser recognition for mouse and air drawings | Complete: eight Chromium recognition tests pass with real ONNX inference. Air-path tests use controlled landmarks; physical-hand accuracy remains a manual check. |
-| 6 | Complete game loop | Draft implementation preserved. Not checkpoint-verified; deferred. |
+| 6 | Complete game loop | Start-screen UI change complete; start, practice, timeout/restart and return-home checks pass. Full success/stale-round verification remains pending. |
 | 7 | Verification, documentation, and deployment preparation | Draft docs and tests preserved. Full verification deferred. |
 
 ## Scope and preserved work
@@ -54,7 +56,9 @@ $env:Path = "$PWD\.tools\node-v24.21.0-win-x64;$env:Path"
 npm.cmd --prefix web run dev -- --host 127.0.0.1
 ```
 
-Open http://127.0.0.1:5173. Drag on the canvas; try Undo and Clear. Enable
+Open http://127.0.0.1:5173. Click **Start drawing** to open the board with a prompt
+and 30-second timer, or **Just practice** for untimed drawing. Drag on the canvas;
+try Undo and Clear. **Back to start** clears the round and stops the camera. Enable
 camera, grant permission, and pinch thumb to index to draw; separate them to
 lift the pen. Stop the server with Ctrl+C. Recognition has passed checkpoint 5
 browser checks; timed gameplay remains preserved for checkpoint 6 verification.
@@ -72,10 +76,37 @@ After the user explicitly requests checkpoint 6:
 4. Finish only the complete game loop: prompt selection, 30-second deadline,
    stable correct recognition, win/timeout results, restart, and state resets.
    Add meaningful missing success, stale-round and restart coverage. Existing
-   timer test in `web/tests/game.spec.ts` was intentionally not run in checkpoint 5.
+   timer test in `web/tests/game.spec.ts` now passes, as do the new start-screen
+   tests. Broader success/stale-round coverage is still outstanding.
 5. Run the relevant unit and browser checks, update this file, commit project-only
    changes locally, and stop before checkpoint 7. Do not deploy or push additional
    work unless requested.
+
+## Requested UI follow-up
+
+The board is initially hidden behind a warm-colored start card explaining the
+three steps: press Start, see a word, draw it. Start reveals a prominent prompt,
+the timer, and brief mouse/air instructions. The introductory sections disappear
+while drawing. Keyboard focus moves to the prompt. A secondary practice option
+preserves untimed drawing, including when recognition cannot load. Back to start
+clears drawing/round state, invalidates pending predictions and stops the camera.
+
+Verification: production build and five unit tests passed. All eleven browser
+tests passed (42.7s), including the eight recognition regressions, the existing
+timeout/restart test and two new start/practice tests. Following a small article
+fix ("Draw an airplane"), the build and the three affected UI/timer tests passed
+again (24.9s). Tests cover the hidden initial board, no timer before Start,
+mobile width, focus/keyboard activation, fresh rounds after returning home,
+untimed practice, camera cleanup and model-load failure fallback.
+
+Screenshots: [start desktop](docs/start-desktop.png),
+[start mobile](docs/start-mobile.png), [round mobile](docs/round-mobile.png).
+Mobile start and board layouts were visually inspected. Existing desktop/mobile
+recognition screenshots were refreshed for the new practice view.
+
+This completes the requested UI change, not all checkpoint-6 verification.
+Physical-hand testing and broader game-loop success/stale-round scenarios remain
+as noted above. No model retraining, dependency changes, push or deployment.
 
 ## Checkpoint 5 verification (2026-10-02)
 
@@ -156,12 +187,14 @@ Preparation, training, verification, installation and test processes have exited
 The earlier preview (session 71254) was stopped before browser testing. A local
 preview was restarted after tests at http://127.0.0.1:4173 using
 `npm.cmd --prefix web run preview -- --host 127.0.0.1 --port 4173 --strictPort`
-Preview tool session: `96746`. Stop with Ctrl+C in that session, or identify the listener
+The checkpoint-5 preview (session 96746) was stopped for UI testing. The preview
+was restarted after the UI build; its current tool session is `72295`.
+Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
 process. This local preview is the only intentionally running project process.
 No deployment was performed. Only the pre-checkpoint-5 commit `ab8c66c` was pushed,
-as requested; the new checkpoint-5 commit remains local.
+as requested; checkpoint 5 (`8f181c5`) and the UI follow-up commits remain local.
 
-Local checkpoint commit message: `Verify checkpoint 5 browser recognition for mouse and air input`.
+Local UI commit message: `Add a guided start screen before the drawing board`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
 embedded in the file it commits).

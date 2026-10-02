@@ -45,6 +45,7 @@ async function observe(page: Page, syntheticTracking = false) {
   }, { syntheticTracking })
   await page.goto('/')
   await expect(page.locator('#start')).toBeEnabled({ timeout: 60000 })
+  await page.locator('#practice').click()
 }
 
 async function mouseCircle(page: Page) {

@@ -1,11 +1,20 @@
 import './style.css'
+import './start-screen.css'
 import { CATEGORIES, Drawing, StableGuess, type Point } from './drawing'
 import { Camera } from './camera'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header><a class="brand" href="./"><span class="brand-icon">〰</span> AIR DRAW<span class="beta">LAB</span></a><span class="privacy"><i></i> On your device. In your imagination.</span></header>
 <main><section class="intro"><div class="eyebrow">A LITTLE MOVEMENT. A LITTLE MAGIC.</div><h1>Make thin air<br><em>say something.</em></h1><p>Your finger is the pen. Can the machine guess your sketch?<br>Ten things to draw. Thirty seconds to make your mark.</p></section>
-<section class="game" aria-label="Air Draw game"><div class="play-area">
+<section id="welcome" class="welcome" aria-labelledby="welcome-title">
+<span class="welcome-doodle" aria-hidden="true">✳</span><div class="eyebrow">A QUICK DRAWING CHALLENGE</div>
+<h2 id="welcome-title">Ready, set, sketch.</h2><p>We'll give you something to draw.<br>You have <strong>30 seconds</strong> to help the AI guess it.</p>
+<div class="welcome-steps"><span><b>1</b> Press Start</span><span><b>2</b> See your word</span><span><b>3</b> Draw it!</span></div>
+<button id="begin" class="primary" disabled>Getting ready…</button><p id="welcome-status" role="status">Loading the drawing model…</p>
+<button id="practice" class="practice-link">Just practice — no timer</button><p class="welcome-note">Use your mouse or finger. You can also enable your camera to draw in the air.</p>
+</section>
+<div id="board-nav" class="board-nav" hidden><button id="home" class="secondary">← Back to start</button><span>Draw the word. Watch the AI guess.</span></div>
+<section id="game" class="game" aria-label="Air Draw game" hidden><div class="play-area">
 <div class="prompt-bar"><div><span class="eyebrow" id="round-label">THE CANVAS IS YOURS</span><h2 id="prompt">Warm up your imagination</h2></div><div class="timer" role="timer" aria-label="Seconds remaining"><span id="seconds">30</span><small>SEC</small></div></div>
 <div class="canvas-wrap"><canvas id="canvas" width="800" height="600" aria-label="Drawing canvas. Drag with a mouse or finger to draw."></canvas><div id="canvas-hint"><span class="hint-scribble">✳</span><strong>Every great idea starts with a squiggle.</strong><span>Drag to draw, or turn on your camera.</span></div><div id="cursor" hidden></div><span class="canvas-label">YOUR SKETCH, LIVE</span><span id="pen-status" class="pen-status">MOUSE / TOUCH</span></div>
 <div class="toolbar"><div><button id="undo" class="secondary" disabled>↶ <span>Undo</span></button><button id="clear" class="secondary" disabled>× <span>Clear</span></button></div><button id="start" class="primary" disabled>Loading model…</button></div><div id="result" role="status" hidden></div></div>
@@ -24,8 +33,34 @@ let mouseDown = false, airDown = false
 let modelReady = false, inferenceBusy = false, lastInferred = -1, lastConfirmation = 0
 let inferenceSent = 0, lastTop = ''
 const inference = new Worker(new URL('./inference.worker.ts', import.meta.url), { type: 'module' })
+$('prompt').tabIndex = -1
+$('prompt').setAttribute('aria-live', 'polite')
+const instructions = document.createElement('p')
+instructions.className = 'drawing-instructions'
+instructions.textContent = 'Drag to draw. Or enable your camera: pinch to draw, release to lift the pen.'
+$('prompt').after(instructions)
+function showBoard() {
+  $('welcome').hidden = true; $('game').hidden = false; $('board-nav').hidden = false
+  document.body.classList.add('drawing-view')
+  redraw(); $('prompt').focus({ preventScroll: true }); window.scrollTo(0, 0)
+}
+$('practice').onclick = () => {
+  $('round-label').textContent = 'NO TIMER · JUST EXPLORING'
+  $('prompt').textContent = 'Draw anything you like'
+  document.querySelector<HTMLElement>('.timer')!.hidden = true
+  showBoard()
+}
+$('home').onclick = () => {
+  playing = false; finished = false; round++; mouseDown = false; endAir()
+  camera.stop(); drawing.clear(); resetGuesses(); $('result').hidden = true
+  $('start').textContent = modelReady ? 'Start a round ↗' : 'Model unavailable'
+  $('game').hidden = true; $('board-nav').hidden = true; $('welcome').hidden = false
+  document.body.classList.remove('drawing-view')
+  $(modelReady ? 'begin' : 'practice').focus({ preventScroll: true }); window.scrollTo(0, 0)
+}
 function redraw() {
   const rect = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2)
+  if (!rect.width || !rect.height) return
   const width = Math.round(rect.width * dpr), height = Math.round(rect.height * dpr)
   if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height }
   ctx.setTransform(width / 800, 0, 0, height / 600, 0, 0)
@@ -67,23 +102,29 @@ function finish(success: boolean) {
   if (!playing) return
   playing = false; finished = true; mouseDown = false; drawing.end(); endAir()
   $('result').hidden = false; $('result').className = success ? 'success' : 'timeout'
-  $('result').textContent = success ? `Got it! That's a ${target}. Nicely drawn.` : `Time's up! The prompt was ${target}. ${lastTop ? `My last guess was ${lastTop}.` : 'Try a bold outline next time.'}`
+  $('result').textContent = success ? `Got it! That's ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}. Nicely drawn.` : `Time's up! The prompt was ${target}. ${lastTop ? `My last guess was ${lastTop}.` : 'Try a bold outline next time.'}`
   $('start').textContent = 'Next round ↗'; $('round-label').textContent = success ? 'A LITTLE AIR. A GREAT IDEA.' : 'ANOTHER SKETCH AWAITS'
 }
-$('start').onclick = () => {
+function startRound() {
   if (!modelReady) return
   const choices = CATEGORIES.filter(c => c !== lastTarget)
   target = choices[Math.floor(Math.random() * choices.length)]; lastTarget = target
   round++; playing = true; finished = false; deadline = performance.now() + 30000
   endAir(); mouseDown = false; drawing.clear(); resetGuesses(); redraw()
-  $('prompt').textContent = `Draw a ${target}`; $('round-label').textContent = `ROUND ${String(round).padStart(2, '0')} · YOUR CHALLENGE`
+  $('prompt').textContent = `Draw ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}`; $('round-label').textContent = `ROUND ${String(round).padStart(2, '0')} · YOUR CHALLENGE`
   $('seconds').textContent = '30'; $('start').textContent = 'Restart round ↗'; $('result').hidden = true
+  document.querySelector<HTMLElement>('.timer')!.hidden = false
+  showBoard()
 }
+$('start').onclick = startRound
+$('begin').onclick = startRound
 function modelError(message: string) {
   modelReady = false; inferenceBusy = false
   if (playing) { playing = false; finished = false; $('result').hidden = false; $('result').textContent = 'Round stopped because recognition is unavailable. Reload to retry; you can still sketch.' }
   $('model-status').textContent = `Recognition unavailable. Reload to retry. ${message}`
   $('start').textContent = 'Model unavailable'; $<HTMLButtonElement>('start').disabled = true
+  $('begin').textContent = 'Game unavailable'; $<HTMLButtonElement>('begin').disabled = true
+  $('welcome-status').textContent = 'Recognition could not load. Reload to retry, or choose Just practice to sketch.'
 }
 inference.onerror = e => modelError(e.message)
 inference.onmessage = event => {
@@ -91,6 +132,8 @@ inference.onmessage = event => {
   if (msg.type === 'ready') {
     modelReady = true; $('model-status').textContent = 'Ready when you are. Start sketching.'
     $('start').textContent = 'Start a round ↗'; $<HTMLButtonElement>('start').disabled = false
+    $('begin').textContent = 'Start drawing →'; $<HTMLButtonElement>('begin').disabled = false
+    $('welcome-status').textContent = 'Ready when you are. No camera required.'
   } else if (msg.type === 'error') modelError(msg.message)
   else if (msg.type === 'prediction') {
     inferenceBusy = false

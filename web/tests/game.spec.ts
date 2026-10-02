@@ -3,6 +3,7 @@ import { test, expect, type Page } from '@playwright/test'
 async function ready(page: Page) {
   await page.goto('/')
   await expect(page.locator('#start')).toBeEnabled({ timeout: 60000 })
+  await page.locator('#practice').click()
 }
 async function circle(page: Page) {
   const box = (await page.locator('#canvas').boundingBox())!
@@ -39,7 +40,7 @@ test('timer expires, result appears, restart resets canvas', async ({page}) => {
   await ready(page)
   await page.clock.install()
   await page.locator('#start').click()
-  await expect(page.locator('#prompt')).toContainText('Draw a ')
+  await expect(page.locator('#prompt')).toHaveText(/^Draw an? /)
   await page.clock.fastForward(31000)
   await expect(page.locator('#result')).toContainText("Time's up!")
   await page.locator('#start').click()
@@ -84,6 +85,8 @@ test('@recognition missing classifier fails honestly without invented prediction
   await page.goto('/')
   await expect(page.locator('#model-status')).toContainText('Recognition unavailable', {timeout:60000})
   await expect(page.locator('#start')).toBeDisabled()
+  await expect(page.locator('#welcome-status')).toContainText('Recognition could not load')
+  await page.locator('#practice').click()
   await circle(page)
   await expect(page.locator('#guesses')).toContainText('A few lines')
 })
