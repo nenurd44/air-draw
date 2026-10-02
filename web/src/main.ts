@@ -16,8 +16,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <div id="board-nav" class="board-nav" hidden><button id="home" class="secondary">← Back to start</button><span>Draw the word. Watch the AI guess.</span></div>
 <section id="game" class="game" aria-label="Air Draw game" hidden><div class="play-area">
 <div class="prompt-bar"><div><span class="eyebrow" id="round-label">THE CANVAS IS YOURS</span><h2 id="prompt">Warm up your imagination</h2></div><div class="timer" role="timer" aria-label="Seconds remaining"><span id="seconds">30</span><small>SEC</small></div></div>
+<div id="result" role="status" hidden><span id="result-message"></span><button id="next" class="primary">Next round →</button></div>
 <div class="canvas-wrap"><canvas id="canvas" width="800" height="600" aria-label="Drawing canvas. Drag with a mouse or finger to draw."></canvas><div id="canvas-hint"><span class="hint-scribble">✳</span><strong>Every great idea starts with a squiggle.</strong><span>Drag to draw, or turn on your camera.</span></div><div id="cursor" hidden></div><span class="canvas-label">YOUR SKETCH, LIVE</span><span id="pen-status" class="pen-status">MOUSE / TOUCH</span></div>
-<div class="toolbar"><div><button id="undo" class="secondary" disabled>↶ <span>Undo</span></button><button id="clear" class="secondary" disabled>× <span>Clear</span></button></div><button id="start" class="primary" disabled>Loading model…</button></div><div id="result" role="status" hidden></div></div>
+<div class="toolbar"><div><button id="undo" class="secondary" disabled>↶ <span>Undo</span></button><button id="clear" class="secondary" disabled>× <span>Clear</span></button></div><button id="start" class="primary" disabled>Loading model…</button></div></div>
 <aside><section class="guess-panel"><div class="panel-heading"><span class="eyebrow">THE MACHINE IS THINKING</span><span class="spark">✧</span></div><h3 id="guess-title">I see possibilities.</h3><p id="model-status" role="status">Loading the drawing model…</p><ol id="guesses" aria-label="Top three predictions"><li class="empty-guess">A few lines will get me started.</li></ol><div class="model-foot"><span class="status-dot"></span> REAL MODEL · LOCAL INFERENCE</div></section>
 <section class="camera-panel"><div class="panel-heading"><span class="eyebrow">TAKE IT INTO THE AIR</span><span>↗</span></div><div class="preview"><video id="video" autoplay playsinline muted></video><div id="camera-placeholder"><span>☝</span><strong>A pen you already have.</strong><span>Use your index finger to draw.</span></div></div><button id="camera" class="camera-button">Enable camera</button><p id="camera-status" role="status">Camera is off. Mouse drawing is ready.</p></section></aside></section>
 <section class="how-to" aria-label="How to play"><div><span class="step">01</span><div><h3>Pick up an invisible pen</h3><p>Enable your camera, or use your mouse or touch.</p></div></div><div><span class="step">02</span><div><h3>Pinch. Move. Make a mark.</h3><p>Touch thumb to index to draw. Separate to lift the pen.</p></div></div><div><span class="step">03</span><div><h3>Beat the little clock</h3><p>Start a round and draw the prompt in 30 seconds.</p></div></div></section>
@@ -102,7 +103,8 @@ function finish(success: boolean) {
   if (!playing) return
   playing = false; finished = true; mouseDown = false; drawing.end(); endAir()
   $('result').hidden = false; $('result').className = success ? 'success' : 'timeout'
-  $('result').textContent = success ? `Got it! That's ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}. Nicely drawn.` : `Time's up! The prompt was ${target}. ${lastTop ? `My last guess was ${lastTop}.` : 'Try a bold outline next time.'}`
+  $('result-message').textContent = success ? `✓ Got it! That's ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}. Nicely drawn.` : `Time's up! The prompt was ${target}. ${lastTop ? `My last guess was ${lastTop}.` : 'Try a bold outline next time.'}`
+  $('next').hidden = false; $('next').focus({ preventScroll: true }); window.scrollTo(0, 0)
   $('start').textContent = 'Next round ↗'; $('round-label').textContent = success ? 'A LITTLE AIR. A GREAT IDEA.' : 'ANOTHER SKETCH AWAITS'
 }
 function startRound() {
@@ -118,10 +120,11 @@ function startRound() {
 }
 $('start').onclick = startRound
 $('begin').onclick = startRound
+$('next').onclick = startRound
 function modelError(message: string) {
   modelReady = false; inferenceBusy = false
   inference.terminate()
-  if (playing) { playing = false; finished = false; $('result').hidden = false; $('result').textContent = 'Round stopped because recognition is unavailable. Reload to retry; you can still sketch.' }
+  if (playing) { playing = false; finished = false; $('result').hidden = false; $('result').className = 'timeout'; $('next').hidden = true; $('result-message').textContent = 'Round stopped because recognition is unavailable. Reload to retry; you can still sketch.' }
   $('model-status').textContent = `Recognition unavailable. Reload to retry. ${message}`
   $('start').textContent = 'Model unavailable'; $<HTMLButtonElement>('start').disabled = true
   $('begin').textContent = 'Game unavailable'; $<HTMLButtonElement>('begin').disabled = true

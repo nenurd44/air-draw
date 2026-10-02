@@ -25,6 +25,9 @@
 .drawing-view .prompt-bar h2 { font-size: clamp(26px, 3vw, 36px); letter-spacing: -1px; color: #4c386d; }
 .drawing-instructions { font-size: 12px; line-height: 1.6; color: #77716a; max-width: 430px; margin: 10px 0 0; }
 #prompt:focus { outline: none; }
+#result { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #d9e1d5; font-weight: 600; }
+#result-message { flex: 1; }
+#result .primary { flex-shrink: 0; background: #fff; color: inherit; }
 /* Keep camera setup next to the drawing area, ahead of the guesses. */
 .game { grid-template-rows: auto 1fr; }
 .game > aside { display: contents; }
@@ -40,6 +43,7 @@
   .board-nav > span { display: none; }
   .drawing-view .prompt-bar { align-items: flex-start; }
   .drawing-instructions { font-size: 11px; }
+  #result { padding: 16px 18px; flex-direction: column; align-items: stretch; gap: 12px; }
   .game { grid-template-rows: auto auto auto; }
   .play-area { grid-column: 1; grid-row: 2; }
   .guess-panel { grid-column: 1; grid-row: 3; }

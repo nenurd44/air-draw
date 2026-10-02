@@ -112,6 +112,16 @@ known blocking checkpoint-6 issues.
 
 ## Requested UI follow-up
 
+Latest follow-up: round results now appear above the canvas, with a prominent
+success message and a Next round button. Finishing a round returns the viewport
+to the top and focuses that button so the stopped drawing has a visible
+explanation. Timeout and inference-failure messages also appear above the board.
+The build and five affected browser tests passed (19.2s): real-model win/top
+button, deadline, timeout/restart, failure fallback and start flow. Desktop banner
+position and mobile result/button visibility are asserted; the
+[mobile success screenshot](docs/success-mobile.png) was visually inspected.
+Checkpoint 7 remains pending; this follow-up does not advance it.
+
 The board is initially hidden behind a warm-colored start card explaining the
 three steps: press Start, see a word, draw it. Start reveals a prominent prompt,
 the timer, and brief mouse/air instructions. The introductory sections disappear
@@ -215,10 +225,10 @@ Preparation, training, verification, installation and test processes have exited
 The earlier preview (session 71254) was stopped before browser testing. A local
 preview was restarted after tests at http://127.0.0.1:4173 using
 `npm.cmd --prefix web run preview -- --host 127.0.0.1 --port 4173 --strictPort`
-The previous preview (session 72295) was stopped for checkpoint-6 testing. The
-The preview later stopped responding, causing the user's "page won't open" report.
-It was restarted without app changes; its current tool session is `25884`.
-Both the page and ONNX model returned HTTP 200 after restart. The preview must
+An earlier preview stopped responding and was restarted for the user's
+"page won't open" report. That preview (session 25884) was stopped for result-banner
+testing. The latest build is now served by preview tool session `52435`.
+The preview must
 remain running to use the localhost URL; if it stops, rerun the preview command above.
 Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
@@ -226,6 +236,6 @@ process. This local preview is the only intentionally running project process.
 No deployment was performed. GitHub remains at `9b554d3` (checkpoint 5 and the
 start-screen UI). Checkpoint 6 is saved locally and has not been pushed.
 
-Local checkpoint commit message: `Complete checkpoint 6 and improve camera placement`.
+Latest local commit message: `Show round results and next action above the canvas`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
 embedded in the file it commits).
