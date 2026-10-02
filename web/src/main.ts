@@ -4,26 +4,25 @@ import { CATEGORIES, Drawing, StableGuess, type Point } from './drawing'
 import { Camera } from './camera'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<header><a class="brand" href="./"><span class="brand-icon">〰</span> AIR DRAW<span class="beta">LAB</span></a><span class="privacy"><i></i> On your device. In your imagination.</span></header>
-<main><section class="intro"><div class="eyebrow">A LITTLE MOVEMENT. A LITTLE MAGIC.</div><h1>Make thin air<br><em>say something.</em></h1><p>Your finger is the pen. Can the machine guess your sketch?<br>Ten things to draw. Thirty seconds to make your mark.</p></section>
+<header><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">〰</span> air draw</a></header>
+<main>
 <section id="welcome" class="welcome" aria-labelledby="welcome-title">
-<span class="welcome-doodle" aria-hidden="true">✳</span><div class="eyebrow">A QUICK DRAWING CHALLENGE</div>
-<h2 id="welcome-title">Ready, set, sketch.</h2><p>We'll give you something to draw.<br>You have <strong>30 seconds</strong> to help the AI guess it.</p>
+<h1 id="welcome-title">ready to draw?</h1><p>get a word, then draw it in <strong>30 seconds</strong>.<br>the ai will try to guess your drawing.</p>
 <div class="welcome-steps"><span><b>1</b> Press Start</span><span><b>2</b> See your word</span><span><b>3</b> Draw it!</span></div>
 <button id="begin" class="primary" disabled>Getting ready…</button><p id="welcome-status" role="status">Loading the drawing model…</p>
 <button id="practice" class="practice-link">Just practice — no timer</button><p class="welcome-note">Use your mouse or finger. You can also enable your camera to draw in the air.</p>
 </section>
-<div id="board-nav" class="board-nav" hidden><button id="home" class="secondary">← Back to start</button><span>Draw the word. Watch the AI guess.</span></div>
+<div id="board-nav" class="board-nav" hidden><button id="home" class="secondary">← back to start</button></div>
 <section id="game" class="game" aria-label="Air Draw game" hidden><div class="play-area">
 <div class="prompt-bar"><div><span class="eyebrow" id="round-label">THE CANVAS IS YOURS</span><h2 id="prompt">Warm up your imagination</h2></div><div class="timer" role="timer" aria-label="Seconds remaining"><span id="seconds">30</span><small>SEC</small></div></div>
 <div id="result" role="status" hidden><span id="result-message"></span><button id="next" class="primary">Next round →</button></div>
-<div class="canvas-wrap"><canvas id="canvas" width="800" height="600" aria-label="Drawing canvas. Drag with a mouse or finger to draw."></canvas><div id="canvas-hint"><span class="hint-scribble">✳</span><strong>Every great idea starts with a squiggle.</strong><span>Drag to draw, or turn on your camera.</span></div><div id="cursor" hidden></div><span class="canvas-label">YOUR SKETCH, LIVE</span><span id="pen-status" class="pen-status">MOUSE / TOUCH</span></div>
+<div class="canvas-wrap"><canvas id="canvas" width="800" height="600" aria-label="drawing canvas. drag with a mouse or finger to draw."></canvas><div id="canvas-hint"><strong>draw here</strong><span>drag with your mouse or finger, or enable the camera.</span></div><div id="cursor" hidden></div><span class="canvas-label">your drawing</span><span id="pen-status" class="pen-status">mouse / touch</span></div>
 <div class="toolbar"><div><button id="undo" class="secondary" disabled>↶ <span>Undo</span></button><button id="clear" class="secondary" disabled>× <span>Clear</span></button></div><button id="start" class="primary" disabled>Loading model…</button></div></div>
-<aside><section class="guess-panel"><div class="panel-heading"><span class="eyebrow">THE MACHINE IS THINKING</span><span class="spark">✧</span></div><h3 id="guess-title">I see possibilities.</h3><p id="model-status" role="status">Loading the drawing model…</p><ol id="guesses" aria-label="Top three predictions"><li class="empty-guess">A few lines will get me started.</li></ol><div class="model-foot"><span class="status-dot"></span> REAL MODEL · LOCAL INFERENCE</div></section>
-<section class="camera-panel"><div class="panel-heading"><span class="eyebrow">TAKE IT INTO THE AIR</span><span>↗</span></div><div class="preview"><video id="video" autoplay playsinline muted></video><div id="camera-placeholder"><span>☝</span><strong>A pen you already have.</strong><span>Use your index finger to draw.</span></div></div><button id="camera" class="camera-button">Enable camera</button><p id="camera-status" role="status">Camera is off. Mouse drawing is ready.</p></section></aside></section>
-<section class="how-to" aria-label="How to play"><div><span class="step">01</span><div><h3>Pick up an invisible pen</h3><p>Enable your camera, or use your mouse or touch.</p></div></div><div><span class="step">02</span><div><h3>Pinch. Move. Make a mark.</h3><p>Touch thumb to index to draw. Separate to lift the pen.</p></div></div><div><span class="step">03</span><div><h3>Beat the little clock</h3><p>Start a round and draw the prompt in 30 seconds.</p></div></div></section>
-<details><summary>What can I draw? <span>10 everyday things</span></summary><p>${CATEGORIES.join(' · ')}</p><p>The model only knows these ten categories, so an unrelated doodle can still get a confident guess. Simple, centered outlines work best.</p></details>
-</main><footer><span>Made for playful minds & wandering hands.</span><span>Inspired by Quick, Draw! · <a href="https://github.com/googlecreativelab/quickdraw-dataset" target="_blank" rel="noreferrer">Dataset: Google / CC BY 4.0</a></span></footer>`
+<aside><section class="guess-panel"><div class="panel-heading"><span class="eyebrow">predictions</span></div><h3 id="guess-title">I see possibilities.</h3><p id="model-status" role="status">Loading the drawing model…</p><ol id="guesses" aria-label="top three predictions"><li class="empty-guess">A few lines will get me started.</li></ol></section>
+<section class="camera-panel" aria-label="camera"><div class="panel-heading"><span class="eyebrow">camera</span></div><div class="preview"><video id="video" autoplay playsinline muted></video><div id="camera-placeholder"><span>☝</span><strong>draw with your index finger</strong><span>pinch to draw, release to stop.</span></div></div><button id="camera" class="camera-button">Enable camera</button><p id="camera-status" role="status">Camera is off. Mouse drawing is ready.</p></section>
+<section class="instructions-panel" aria-labelledby="help-title"><h3 id="help-title">how to draw</h3><ul><li><strong>mouse or touch:</strong> drag on the board. lift to stop.</li><li><strong>camera:</strong> allow access, show one hand, and pinch your thumb and index finger to draw. separate them to lift the pen.</li><li><strong>fix a line:</strong> undo removes the last stroke; clear erases the board.</li><li><strong>finish a round:</strong> draw the word before time runs out. a green message means the ai got it.</li></ul><details><summary>what can i draw?</summary><p>${CATEGORIES.join(' · ')}</p><p>the model knows only these ten categories. scores are relative guesses, not certainty.</p></details></section>
+</aside></section>
+</main><footer><a href="https://github.com/googlecreativelab/quickdraw-dataset" target="_blank" rel="noreferrer">drawing data: google quick, draw! · cc by 4.0</a></footer>`
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 const canvas = $<HTMLCanvasElement>('canvas'), ctx = canvas.getContext('2d')!
@@ -105,7 +104,7 @@ function finish(success: boolean) {
   $('result').hidden = false; $('result').className = success ? 'success' : 'timeout'
   $('result-message').textContent = success ? `✓ Got it! That's ${/^[aeiou]/.test(target) ? 'an' : 'a'} ${target}. Nicely drawn.` : `Time's up! The prompt was ${target}. ${lastTop ? `My last guess was ${lastTop}.` : 'Try a bold outline next time.'}`
   $('next').hidden = false; $('next').focus({ preventScroll: true }); window.scrollTo(0, 0)
-  $('start').textContent = 'Next round ↗'; $('round-label').textContent = success ? 'A LITTLE AIR. A GREAT IDEA.' : 'ANOTHER SKETCH AWAITS'
+  $('start').textContent = 'Next round ↗'; $('round-label').textContent = success ? 'correct drawing' : 'round finished'
 }
 function startRound() {
   if (!modelReady) return

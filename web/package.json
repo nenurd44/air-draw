@@ -9,6 +9,7 @@
     "build": "npm run assets && tsc && vite build",
     "preview": "vite preview",
     "test": "node --test tests/core.test.ts",
+    "test:parity": "node --test tests/parity.test.ts",
     "test:browser": "playwright test",
     "test:recognition": "playwright test --grep @recognition"
   },

@@ -1,5 +1,8 @@
 # Optional static deployment
 
+Archived reference only: the user chose local use with README setup instructions.
+Deployment is not required for project completion and has not been performed.
+
 1. In `web`, run `npm.cmd ci`, `npm.cmd test`, `npm.cmd run build`, and `npm.cmd run test:browser`.
 2. Preview with `npm.cmd run preview -- --host 127.0.0.1 --port 4173` and test camera behavior on the target browser.
 3. Deploy the **contents of web/dist** to any static HTTPS host. Do not deploy the Python environment or dataset. No backend or secrets are needed.

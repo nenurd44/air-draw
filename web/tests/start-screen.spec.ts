@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test'
 test('start screen hides the board until Start, then shows a prompt and fresh round', async ({ page }) => {
   await page.addInitScript(() => { Math.random = () => .999 })
   await page.goto('/')
+  await expect(page.locator('.brand')).toContainText('air draw')
+  await expect(page.locator('.intro, .beta, .privacy, .how-to')).toHaveCount(0)
   await expect(page.locator('#game')).toBeHidden()
   await expect(page.locator('#begin')).toBeEnabled({ timeout: 60000 })
   await page.screenshot({ path: '../docs/start-desktop.png', fullPage: true })
@@ -19,6 +21,9 @@ test('start screen hides the board until Start, then shows a prompt and fresh ro
   await expect(page.locator('#prompt')).toBeFocused()
   await expect(page.locator('#seconds')).toHaveText('30')
   await expect(page.locator('.drawing-instructions')).toBeVisible()
+  await expect(page.locator('.instructions-panel')).toContainText('pinch your thumb and index finger')
+  await expect(page.locator('#prompt')).toHaveCSS('text-transform', 'lowercase')
+  await expect(page.locator('#camera')).toHaveCSS('text-transform', 'lowercase')
   await page.screenshot({ path: '../docs/round-mobile.png', fullPage: true })
   await page.clock.fastForward(31000)
   await expect(page.locator('#result')).toContainText("Time's up!")
