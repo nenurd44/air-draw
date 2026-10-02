@@ -216,7 +216,10 @@ The earlier preview (session 71254) was stopped before browser testing. A local
 preview was restarted after tests at http://127.0.0.1:4173 using
 `npm.cmd --prefix web run preview -- --host 127.0.0.1 --port 4173 --strictPort`
 The previous preview (session 72295) was stopped for checkpoint-6 testing. The
-preview was restarted after the completed checks; its current tool session is `62401`.
+The preview later stopped responding, causing the user's "page won't open" report.
+It was restarted without app changes; its current tool session is `25884`.
+Both the page and ONNX model returned HTTP 200 after restart. The preview must
+remain running to use the localhost URL; if it stops, rerun the preview command above.
 Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
 process. This local preview is the only intentionally running project process.
