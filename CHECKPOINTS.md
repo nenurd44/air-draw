@@ -270,9 +270,12 @@ remain running to use the localhost URL; if it stops, rerun the preview command 
 Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
 process. This local preview is the only intentionally running project process.
-No deployment was performed. GitHub remains at `9b554d3` (checkpoint 5 and the
-start-screen UI). Checkpoint 6 is saved locally and has not been pushed.
+No deployment was performed. The user authorized pushing all work through this
+stage, including checkpoint 6, result-banner improvements, the simplified UI,
+and the polished local-use README. The push includes commits through `e7f7300`
+plus this documentation update. Existing verification limitations remain open;
+the push does not mark the final manual/fresh-install checks as complete.
 
-Latest local commit message: `Simplify the drawing UI and document local setup`.
+Latest commit message: `Polish project overview and local setup guide`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
 embedded in the file it commits).

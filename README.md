@@ -2,6 +2,19 @@
 
 Draw with a mouse, touch, or your index finger on camera. A ten-category neural network guesses your drawing locally in the browser. Choose a 30-second round or untimed practice. No backend, account, API key, or deployment is needed.
 
+![air draw: drawing board, camera, predictions, and instructions](docs/desktop.png)
+
+## what you can do
+
+- **draw in the air:** use your index fingertip as a cursor and pinch to draw.
+- **use a mouse or touchscreen:** play without a webcam or camera permission.
+- **play quick rounds:** get a word, draw it, and see whether the model recognizes it before the timer runs out.
+- **practice freely:** sketch without a timer, undo a stroke, or clear the board.
+- **see live predictions:** the three highest-scoring categories update as you draw.
+- **keep it local:** hand tracking and recognition run in browser workers; drawings and camera frames are not uploaded.
+
+**quick start:** install Node.js 24, clone this repository, enter `web`, run `npm ci`, then `npm run dev`. On Windows PowerShell, use `npm.cmd` instead. Detailed commands follow.
+
 ## requirements
 
 - Node.js 24 with npm, available from [nodejs.org](https://nodejs.org/).
@@ -42,13 +55,20 @@ Open **http://127.0.0.1:5173** (or the address printed by Vite if that port is b
 
 Next time, open a terminal in `web` and run the same dev command. You only need `npm ci` again after dependencies change. Windows uses `npm.cmd` to avoid PowerShell's `npm.ps1` execution-policy restriction; do not change the system execution policy.
 
+<details>
+<summary>optional: portable node on the original development machine</summary>
+
 If using the portable Node already present on the original development machine, run this from the repository root before the commands above:
 
 ```powershell
 $env:Path = "$PWD\.tools\node-v24.21.0-win-x64;$env:Path"
 ```
 
-That `.tools` directory is ignored by Git; new users should install Node normally. Windows is the tested setup. The equivalent macOS/Linux commands are provided but were not exercised on those operating systems.
+That `.tools` directory is ignored by Git; new users should install Node normally.
+
+</details>
+
+Windows is the tested setup. The equivalent macOS/Linux commands are provided but were not exercised on those operating systems.
 
 ## how to use it
 
@@ -95,6 +115,15 @@ npm.cmd run preview -- --host 127.0.0.1 --port 4173 --strictPort
 ```
 
 Open **http://127.0.0.1:4173** and keep that terminal running. This is a local preview, not a deployment. Build output is in `web/dist`. The build copies local runtime assets from dependencies; rebuilding is required after source changes when using preview. The development server updates automatically.
+
+## how it works
+
+1. **capture strokes:** pointer events record mouse/touch movement. MediaPipe Hand Landmarker supplies fingertip positions for camera input, with smoothing and pinch control determining when the pen is down.
+2. **prepare the drawing:** strokes are cropped, centered, and rasterized into a normalized 32 × 32 image using the same preprocessing as the training pipeline.
+3. **recognize locally:** ONNX Runtime Web runs the included convolutional neural network in a worker and converts its ten outputs into ranked guesses.
+4. **judge the round:** the app compares the prediction with the prompt and checks confidence, timing, and drawing revision. Late predictions from an earlier drawing or round are discarded.
+
+The interface uses **TypeScript and Vite**, hand tracking uses **MediaPipe**, and browser inference uses **ONNX Runtime Web**. The optional training pipeline uses **Python, NumPy, and PyTorch**. No server-side inference is involved.
 
 ## optional model training
 
