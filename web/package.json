@@ -9,7 +9,8 @@
     "build": "npm run assets && tsc && vite build",
     "preview": "vite preview",
     "test": "node --test tests/core.test.ts",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:recognition": "playwright test --grep @recognition"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

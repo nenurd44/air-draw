@@ -1,15 +1,18 @@
 # Checkpoint progress
 
-Work is limited to the nearest incomplete checkpoint. Stop after checkpoint 4;
-do not begin checkpoint 5 until the user asks. Do not push or deploy.
+Work is limited to the nearest incomplete checkpoint. Checkpoint 5 is complete;
+stop here and do not begin checkpoint 6 until the user asks. On 2026-10-02 the
+user authorized pushing the existing state, then proceeding to checkpoint 5.
+Commit `ab8c66c` was pushed to `origin/main`. Checkpoint 5 changes are saved in a
+new local commit; further pushes and deployment are not part of this checkpoint.
 
 | # | Checkpoint | Status |
 |---|---|---|
 | 1 | Environment setup and running starter app | Existing Node/Vite environment and app preserved; build passes. |
 | 2 | Mouse drawing canvas with Clear and Undo | Existing implementation preserved; stroke, undo and clear unit checks pass. |
 | 3 | Webcam air drawing with pinch control | Existing implementation preserved; pinch hysteresis and reset checks pass. Physical-camera behavior still needs a human smoke test. |
-| 4 | Dataset preparation, model training, and evaluation | Complete and verified. Stop here. Full test accuracy 96.00%; partial test accuracy 89.95%. |
-| 5 | Real browser recognition for mouse and air drawings | Draft implementation preserved. Not checkpoint-verified; deferred. |
+| 4 | Dataset preparation, model training, and evaluation | Complete and verified. Full test accuracy 96.00%; partial test accuracy 89.95%. |
+| 5 | Real browser recognition for mouse and air drawings | Complete: eight Chromium recognition tests pass with real ONNX inference. Air-path tests use controlled landmarks; physical-hand accuracy remains a manual check. |
 | 6 | Complete game loop | Draft implementation preserved. Not checkpoint-verified; deferred. |
 | 7 | Verification, documentation, and deployment preparation | Draft docs and tests preserved. Full verification deferred. |
 
@@ -53,26 +56,74 @@ npm.cmd --prefix web run dev -- --host 127.0.0.1
 
 Open http://127.0.0.1:5173. Drag on the canvas; try Undo and Clear. Enable
 camera, grant permission, and pinch thumb to index to draw; separate them to
-lift the pen. Stop the server with Ctrl+C. Recognition and timed gameplay are
-present as pre-existing draft functionality pending checkpoints 5 and 6.
+lift the pen. Stop the server with Ctrl+C. Recognition has passed checkpoint 5
+browser checks; timed gameplay remains preserved for checkpoint 6 verification.
 
 ## Exact resume instructions
 
-After the user explicitly requests checkpoint 5:
+After the user explicitly requests checkpoint 6:
 
-1. Read this file and `docs/evaluation.md`; inspect `git status --short` and
-   preserve any new changes. Do not retrain merely to start browser verification.
+1. Read this file and `docs/design.md`; inspect `git status --short` and preserve
+   any new changes. Do not restart the project or retrain the verified model.
 2. Set the portable Node PATH as above (PowerShell script execution is disabled
    on this machine), then run `npm.cmd --prefix web run build`.
-3. From `web`, run `npx.cmd playwright install chromium` if Chromium is absent.
-4. Verify real ONNX predictions for both mouse and air inputs, preprocessing,
-   stale-result handling, and honest model-load failures. Existing browser tests
-   are in `web/tests/game.spec.ts`; select recognition/camera cases without
-   advancing the game-loop checkpoint. Add missing air-input coverage as needed.
-5. Update this file, report limitations, commit project-only changes locally,
-   and stop before checkpoint 6. Do not push or deploy.
+3. Stop the local preview below before Playwright starts its own server on 4173.
+   Chromium is now installed. Run `npm.cmd --prefix web run test:browser`.
+4. Finish only the complete game loop: prompt selection, 30-second deadline,
+   stable correct recognition, win/timeout results, restart, and state resets.
+   Add meaningful missing success, stale-round and restart coverage. Existing
+   timer test in `web/tests/game.spec.ts` was intentionally not run in checkpoint 5.
+5. Run the relevant unit and browser checks, update this file, commit project-only
+   changes locally, and stop before checkpoint 7. Do not deploy or push additional
+   work unless requested.
 
-## Verification and processes
+## Checkpoint 5 verification (2026-10-02)
+
+The existing recognition implementation passed without application-code changes.
+Four browser regressions were added in `web/tests/recognition.spec.ts`; four
+existing recognition tests are retained in `web/tests/game.spec.ts`. All eight
+are tagged `@recognition`. Run only this checkpoint with:
+
+```powershell
+$env:Path = "$PWD\.tools\node-v24.21.0-win-x64;$env:Path"
+npm.cmd --prefix web run build
+npm.cmd --prefix web run test:recognition
+npm.cmd --prefix web test
+```
+
+Results: eight browser tests passed (1.1 minutes), five unit tests passed, and
+the production build passed. After tagging, `test:recognition -- --list` confirmed
+that the same eight tests are selected and the game-loop test is excluded.
+
+- Real mouse input produces real ONNX top-three predictions; Undo, Clear,
+  resizing and 390px-wide layout work. No page errors or external requests were
+  observed in the mouse test. [Desktop](docs/desktop.png) and
+  [mobile](docs/mobile.png) screenshots were generated and visually inspected.
+- Real MediaPipe worker initializes with fake camera frames, reports no hand,
+  runs concurrently with inference, and releases all media tracks. Measured UI
+  frame intervals: 180 samples, p95 16.8 ms, max 50.1 ms on this machine.
+- Controlled landmarks exercise the real Camera mapping, pinch state, mirrored
+  coordinates, smoothing, drawing data and ONNX worker. A circle is recognized;
+  pen-up movement adds no ink, tracking loss hides the cursor, separate strokes
+  remain separate, and Undo restores recognition of the previous circle.
+- Delayed real inference responses after Clear or Undo are rejected; subsequent
+  ink still receives predictions. Empty canvas and single taps send no inference.
+- Camera permission denial leaves mouse recognition working. Missing classifier
+  shows an honest error and no invented predictions.
+
+Limits: synthetic landmark input is not a live-hand accuracy test. The real
+tracker test uses frames with no hand, so tracking a moving physical hand still
+needs manual confirmation. No claim is made about other browsers or calibrated
+confidence. The user's positive general review did not specifically confirm
+physical-hand recognition. No game-loop completion is claimed.
+
+Initial browser tests could not launch because Chromium was absent. Playwright
+Chromium 153.0.8010.12 (revision 1243) was installed; download retries succeeded.
+The subsequent eight-test run passed. Browser binaries, dependencies and test
+output directories remain outside Git; only project tests, docs and screenshots
+are saved.
+
+## Checkpoint 4 verification
 
 Completed checks:
 
@@ -95,20 +146,22 @@ Completed checks:
 
 See [evaluation](docs/evaluation.md) for per-category results and limitations.
 The legacy ONNX exporter emitted a deprecation warning, but export and parity
-checks passed. No blocking checkpoint-4 issues remain. Browser recognition,
-physical-camera smoke testing and end-to-end gameplay remain unverified.
+checks passed. No blocking checkpoint-4 issues remain. Browser recognition has
+since passed the checkpoint-5 checks above; physical-camera smoke testing and
+end-to-end gameplay remain unverified.
 
-Processes: preparation, training, verification and builds have exited. At the
-user's subsequent request to view the work, a local preview was started and left
-running at http://127.0.0.1:4173 using
+## Processes and commits
+
+Preparation, training, verification, installation and test processes have exited.
+The earlier preview (session 71254) was stopped before browser testing. A local
+preview was restarted after tests at http://127.0.0.1:4173 using
 `npm.cmd --prefix web run preview -- --host 127.0.0.1 --port 4173 --strictPort`
-(tool session 71254). Stop with Ctrl+C in that session, or identify the listener
+Preview tool session: `96746`. Stop with Ctrl+C in that session, or identify the listener
 with `Get-NetTCPConnection -LocalPort 4173 -State Listen` and stop its owning
-process. The app and ONNX asset both returned HTTP 200. This is a local preview,
-not browser recognition verification. Initial sandbox-blocked installation/build
-attempts were rerun successfully with elevated tool permission. No push or
-deployment was performed.
+process. This local preview is the only intentionally running project process.
+No deployment was performed. Only the pre-checkpoint-5 commit `ab8c66c` was pushed,
+as requested; the new checkpoint-5 commit remains local.
 
-Local checkpoint commit message: `Complete checkpoint 4 baseline and preserve existing project work`.
+Local checkpoint commit message: `Verify checkpoint 5 browser recognition for mouse and air input`.
 Use `git log -1 --oneline` to find its commit ID (the ID is intentionally not
 embedded in the file it commits).

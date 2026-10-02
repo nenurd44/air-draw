@@ -14,7 +14,7 @@ async function circle(page: Page) {
   }
   await page.mouse.up()
 }
-test('real ONNX mouse prediction, undo, clear, resize, and mobile layout', async ({page}) => {
+test('@recognition real ONNX mouse prediction, undo, clear, resize, and mobile layout', async ({page}) => {
   const errors: string[] = [], external: string[] = []
   page.on('pageerror', e => errors.push(e.message))
   page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:4173') && !r.url().startsWith('blob:') && !r.url().startsWith('data:')) external.push(r.url()) })
@@ -46,7 +46,7 @@ test('timer expires, result appears, restart resets canvas', async ({page}) => {
   await expect(page.locator('#seconds')).toHaveText('30')
   await expect(page.locator('#result')).toBeHidden()
 })
-test('real tracker initializes, handles no hand, and releases tracks while ONNX runs', async ({page}) => {
+test('@recognition real tracker initializes, handles no hand, and releases tracks while ONNX runs', async ({page}) => {
   await ready(page)
   await page.locator('#camera').click()
   await expect(page.locator('#camera')).toHaveText('Disable camera', {timeout:60000})
@@ -72,14 +72,14 @@ test('real tracker initializes, handles no hand, and releases tracks while ONNX 
   expect(await page.evaluate(() => (window as any).testTracks.every((t:MediaStreamTrack) => t.readyState === 'ended'))).toBe(true)
   await expect(page.locator('#camera-status')).toContainText('Camera is off')
 })
-test('camera denied or absent gives an actionable fallback', async ({page}) => {
+test('@recognition camera denial gives an actionable fallback', async ({page}) => {
   await page.addInitScript(() => { navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Test denial', 'NotAllowedError') } })
   await ready(page); await page.locator('#camera').click()
   await expect(page.locator('#camera-status')).toContainText('permission was denied')
   await circle(page)
   await expect(page.locator('#guess-title')).toHaveText('Is it a circle?', {timeout:15000})
 })
-test('missing classifier fails honestly without invented predictions', async ({page}) => {
+test('@recognition missing classifier fails honestly without invented predictions', async ({page}) => {
   await page.route('**/models/air-draw.onnx', route => route.abort())
   await page.goto('/')
   await expect(page.locator('#model-status')).toContainText('Recognition unavailable', {timeout:60000})

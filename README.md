@@ -1,8 +1,10 @@
 # Air Draw
 
 Checkpoint status and exact continuation commands are in [CHECKPOINTS.md](CHECKPOINTS.md).
-The existing recognition and game code is preserved; browser recognition and the
-complete game loop have not yet passed their checkpoint verification.
+Checkpoint 5 browser recognition checks pass in Chromium: real mouse predictions,
+controlled air landmark input through the real classifier, camera worker startup
+and cleanup, and stale-result rejection. Physical-hand accuracy remains a manual
+check. The complete game loop is preserved for checkpoint 6 verification.
 
 A browser drawing game with mouse/touch input, webcam fingertip drawing, and a real ten-class CNN running locally. No backend, API key, or cloud inference. Inspired by Google's Quick, Draw!, not affiliated with Google.
 
@@ -43,6 +45,8 @@ npm.cmd run build
 # One-time browser test setup:
 npx.cmd playwright install chromium
 npm.cmd run test:browser
+# Checkpoint 5 only (excludes the game-loop test):
+npm.cmd run test:recognition
 npm.cmd run preview -- --host 127.0.0.1 --port 4173
 ```
 
